@@ -1,25 +1,53 @@
-const express = require('express')
+const express = require("express");
+const Joi = require("joi");
 
-const router = express.Router()
+const contacts = require("../../models/contacts");
+const { HttpError } = require("../../helpers");
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const router = express.Router();
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const newSchema = Joi.object({
+  name: Joi.string().alphanum().min(3).max(30).required(),
+  email: Joi.string()
+    .email({ tlds: { deny: ["ru", "by", "hu"] } })
+    .required(),
+  phone: Joi.string().required(),
+});
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/", async (req, res, next) => {
+  try {
+    const result = await contacts.listContacts();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/:contactId", async (req, res, next) => {
+  try {
+    const result = await contacts.getContactById(req.params.contactId);
+    if (!result) {
+      throw HttpError(404, "Contact not found");
+    }
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.post("/", async (req, res, next) => {
+  try {
+    const result = await contacts.addContact(req.body);
+    res.status(201).json(result);
+  } catch (error) {}
+});
 
-module.exports = router
+// router.delete("/:contactId", async (req, res, next) => {
+//   res.json({ message: "template message" });
+// });
+
+// router.put("/:contactId", async (req, res, next) => {
+//   res.json({ message: "template message" });
+// });
+
+module.exports = router;
