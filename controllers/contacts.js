@@ -11,12 +11,12 @@ const newSchema = Joi.object({
   phone: Joi.string().min(6).max(20).required(),
 });
 
-const getAllContacts = async (req, res, next) => {
+const getAllContacts = async (req, res) => {
   const result = await contacts.listContacts();
   res.json(result);
 };
 
-const getContactById = async (req, res, next) => {
+const getContactById = async (req, res) => {
   const result = await contacts.getContactById(req.params.contactId);
   if (!result) {
     throw HttpError(404, "Contact with this id not found");
@@ -24,7 +24,7 @@ const getContactById = async (req, res, next) => {
   res.json(result);
 };
 
-const createContact = async (req, res, next) => {
+const createContact = async (req, res) => {
   const { error } = newSchema.validate(req.body);
   if (error) {
     throw HttpError(400, error.message);
@@ -33,7 +33,7 @@ const createContact = async (req, res, next) => {
   res.status(201).json(result);
 };
 
-const deleteContact = async (req, res, next) => {
+const deleteContact = async (req, res) => {
   const result = await contacts.removeContact(req.params.contactId);
   if (!result) {
     throw HttpError(404, "Contact with this id not found");
@@ -41,7 +41,7 @@ const deleteContact = async (req, res, next) => {
   res.json({ message: "Delete success" });
 };
 
-const updateContact = async (req, res, next) => {
+const updateContact = async (req, res) => {
   const { error } = newSchema.validate(req.body);
   if (error) {
     throw HttpError(400, error.message);
