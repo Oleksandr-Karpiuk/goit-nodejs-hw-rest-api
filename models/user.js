@@ -34,10 +34,8 @@ const registerSchema = Joi.object({
 });
 
 const loginSchema = Joi.object({
-  email: Joi.string()
-    .email({ tlds: { deny: ["ru", "by", "hu"] } })
-    .required(),
-  password: Joi.string().min(8).required(),
+  email: Joi.string().required(),
+  password: Joi.string().required(),
 });
 
 const schemas = {
