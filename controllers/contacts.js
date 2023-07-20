@@ -2,7 +2,11 @@ const { Contact } = require("../models/contact");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const getAllContacts = async (req, res) => {
-  const result = await Contact.find({}, "-createdAt -updatedAt");
+  const { _id: owner } = req.user;
+  const result = await Contact.find(
+    { owner },
+    "-createdAt -updatedAt"
+  ).populate("owner", "email subscription");
   res.json(result);
 };
 
@@ -10,7 +14,7 @@ const getContactById = async (req, res) => {
   const result = await Contact.findById(
     req.params.contactId,
     "-createdAt -updatedAt"
-  );
+  ).populate("owner", "email subscription");
   if (!result) {
     throw HttpError(404, "Contact with this id not found");
   }
@@ -18,7 +22,8 @@ const getContactById = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
 };
 
@@ -35,7 +40,7 @@ const updateContact = async (req, res) => {
     req.params.contactId,
     req.body,
     { new: true, select: "-createdAt -updatedAt" }
-  );
+  ).populate("owner", "email subscription");
   if (!result) {
     throw HttpError(404, "Contact with this id not found");
   }
@@ -47,7 +52,7 @@ const updateFavorite = async (req, res) => {
     req.params.contactId,
     req.body,
     { new: true, select: "-createdAt -updatedAt" }
-  );
+  ).populate("owner", "email subscription");
   if (!result) {
     throw HttpError(404, "Contact with this id not found");
   }
